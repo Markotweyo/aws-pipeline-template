@@ -1,0 +1,51 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template to create CodeDeploy Stack for ECS Application
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: New Nextjsapp Project
+    Default: nextjsapp
+
+Resources:
+  ECSDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: !Sub '${ProjectName}-ecs-deploy'
+      ComputePlatform: ECS
+      #Tags: if needed
+      #  - Tag
+
+  ECSDeploymentConfig:
+    Type: AWS::CodeDeploy::DeploymentConfig
+    Properties:
+      ComputePlatform: ECS
+      DeploymentConfigName: ECSDeploymentConfig
+
+  ECSDeploymentGroup:
+    Type: "AWS::CodeDeploy::DeploymentGroup"
+    Properties:
+      AlarmConfiguration:
+      ApplicationName: !Ref ECSDeployApplication
+      ServiceRoleArn: !GetAtt GetAtt ServiceRole.Arn
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      Deployment:
+      Description: "First time"
+      IgnoreApplicationStopFailures: true
+      DeploymentStyle:
+      DeploymentType: BLUE_GREEN
+      DeploymentOption: WITH_TRAFFIC_CONTROL
+       #Tags:if needed
+      #  - Tag
+     #TriggerConfigurations:
+      #  - TriggerConfig #TBC
+
+Outputs:
+
+  DeploymentGroup:
+    Description:  Deployment Group
+    Value: !Ref ECSDeploymentGroup
+  ApplicationName:
+    Description: CodeDeploy Application name
+    Value: !Ref ECSDeployApplication
